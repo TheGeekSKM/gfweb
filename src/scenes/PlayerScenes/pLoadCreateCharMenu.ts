@@ -65,7 +65,7 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
             {
                 k.tween(createNewCharButton.scale, k.vec2(1), 0.1, (s) => { createNewCharButton.scale = s  });
                 k.wait(0.1, () => {
-                    k.debug.log("Creating New Character...");
+                    k.go("createNewCharacter_experiences");
                 });
             }
         });
@@ -139,6 +139,9 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
         loadCharInputField.style.top = (k.center().y + choiceBorder.pos.y + dividerBar.pos.y + 70 - loadCharInputFieldBorder.height / 2) - 5 + "px";
         loadCharInputField.style.width = (loadCharInputFieldBorder.width - 20) + "px";
         loadCharInputField.style.height = (loadCharInputFieldBorder.height) - 15 + "px";
-        
+
+        k.onSceneLeave(() => {
+            loadCharInputField.style.display = "none";
+        })
     });
 }

@@ -1,12 +1,15 @@
 import type { GameObj, KAPLAYCtx } from "kaplay";
 import * as Types from "./data/templates.ts";
 
-export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent?: GameObj) : GameObj
+export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent?: GameObj, clickCallback? : (exp : Types.Experience) => void) : GameObj
 {
     const experienceBorderNoParent = k.add([
         k.rect(k.width() - 60, 100, {radius: 10}),
         k.pos(k.center()),
         k.anchor("center"),
+        k.scale(1),
+        k.color(k.rgb(56, 90, 153)),
+        k.area()
     ]);
 
     const experienceObjectBorder = parent ? parent.add([
@@ -15,6 +18,8 @@ export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent
         k.anchor("center"),
         k.color(k.rgb(50, 50, 50)),
         k.outline(5, k.rgb(150, 150, 150)),
+        k.scale(1),
+        k.area()
     ]) : experienceBorderNoParent;
 
     if (parent)
@@ -51,6 +56,29 @@ export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent
 
     experienceObjectBorder.height = formatted.height + 20;
     verticalDivider.height = experienceObjectBorder.height;
+
+    let isExperienceObjectBorderHovered = false;
+    experienceObjectBorder.onMousePress(() => {
+        if (experienceObjectBorder.hasPoint(k.mousePos())) 
+        {
+            isExperienceObjectBorderHovered = true;
+            k.tween(experienceObjectBorder.scale, k.vec2(1.05), 0.1, (s) => { experienceObjectBorder.scale = s  });
+        }
+    });
+
+    experienceObjectBorder.onMouseRelease(() => {
+        if (isExperienceObjectBorderHovered) 
+        {
+            k.tween(experienceObjectBorder.scale, k.vec2(1), 0.1, (s) => { experienceObjectBorder.scale = s  });
+            if (clickCallback)
+            {
+                k.wait(0.1, () => {
+                    clickCallback(experience);
+                });
+            }
+        }
+        isExperienceObjectBorderHovered = false;
+    });
 
     return experienceObjectBorder;
 }
