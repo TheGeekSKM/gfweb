@@ -28,8 +28,8 @@ export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent
     }
 
     const levelText = experienceObjectBorder.add([
-        k.text("Lv. " + experience.level.toString(), {size: 24, font: "monogram", width: (experienceObjectBorder.width * .2), align: "center"}),
-        k.pos(-experienceObjectBorder.width / 2 + 10, 0),
+        k.text("Lv" + experience.level.toString(), {size: 18, font: "monogram", width: (experienceObjectBorder.width * .2), align: "center"}),
+        k.pos(-experienceObjectBorder.width / 2 + 20, 0),
         k.anchor("left"),
         k.color(k.rgb(200, 200, 200)),
     ]);
