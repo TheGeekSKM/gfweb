@@ -5,7 +5,7 @@ import { AddExperience } from "../../../ui.ts";
 
 export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
 {
-    k.scene("createNewCharacter_experiences",  () => {
+    k.scene("newCharExp",  () => {
 
     const fullBorder = k.add([
         k.rect(k.width() - 20, k.height() - 20, {radius: 10, fill: false}),
@@ -75,7 +75,7 @@ export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
         {
             Data.PLAYER.experienceList.push({ name: experienceValue, level: 1 });
             experienceInputField.value = "";
-            k.go("createNewCharacter_experiences");
+            k.go("newCharExp");
         }
     }
 
@@ -146,7 +146,7 @@ export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
     function OnExperienceClick(exp : Types.Experience)
     {
         Data.PLAYER.experienceList = Data.PLAYER.experienceList.filter(e => e !== exp);
-        k.go("createNewCharacter_experiences");
+        k.go("newCharExp");
     }
 
     let currentYPos = -((experienceListContainer.height / 2) - 20);

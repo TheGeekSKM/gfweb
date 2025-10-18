@@ -65,7 +65,7 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
             {
                 k.tween(createNewCharButton.scale, k.vec2(1), 0.1, (s) => { createNewCharButton.scale = s  });
                 k.wait(0.1, () => {
-                    k.go("createNewCharacter_experiences");
+                    k.go("newCharExp");
                 });
             }
         });
