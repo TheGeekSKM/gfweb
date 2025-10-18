@@ -42,7 +42,7 @@ export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent
     ]);
 
     const nameText = experienceObjectBorder.add([
-        k.text(experience.name, {size: 24, font: "monogram", width: (experienceObjectBorder.width * .6) - 10, align: "left"}),
+        k.text(experience.name, {size: 18, font: "monogram", width: (experienceObjectBorder.width * .6) - 10, align: "left"}),
         k.pos((verticalDivider.pos.x) + 10, 0),
         k.anchor("left"),
         k.color(k.rgb(200, 200, 200)),
@@ -50,7 +50,7 @@ export function AddExperience(k: KAPLAYCtx, experience: Types.Experience, parent
 
     const formatted = k.formatText({
         text: experience.name,
-        size: 24,
+        size: 18,
         width: (experienceObjectBorder.width * .6) - 10,
     });
 
