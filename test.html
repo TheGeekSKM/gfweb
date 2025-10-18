@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Page RPG Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        .main-container {
+            display: grid;
+            grid-template-areas:
+                "header header"
+                "image experiences"
+                "inventory inventory";
+            grid-template-columns: 1fr 2fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 1rem;
+            height: calc(100vh - 4rem);
+        }
+        /* Portrait layout for smaller screens */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-areas:
+                    "header"
+                    "image"
+                    "experiences"
+                    "inventory";
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto 1fr;
+            }
+        }
+        .grid-header { grid-area: header; }
+        .grid-image { grid-area: image; }
+        .grid-experiences { grid-area: experiences; }
+        .grid-inventory { grid-area: inventory; }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #2c2c2c;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .btn {
+            @apply px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg shadow-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white;
+        }
+        .btn-primary {
+            @apply bg-indigo-600 hover:bg-indigo-500;
+        }
+        .modal-backdrop {
+            @apply fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50;
+        }
+        .modal-content {
+            @apply bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div id="app-container">
+
+        <!-- Initial Screen: Role Selection -->
+        <div id="role-selection-screen" class="h-screen flex flex-col items-center justify-center">
+            <h1 class="text-4xl font-bold mb-8">RPG Companion</h1>
+            <div class="space-y-4">
+                 <button id="show-player-view-btn" class="btn btn-primary w-64">Player View</button>
+                 <button id="show-gm-view-btn" class="btn w-64">GM View</button>
+            </div>
+        </div>
+
+        <!-- Player View -->
+        <div id="player-view" class="hidden">
+            <!-- Player: Character Selection/Creation -->
+            <div id="player-login-screen" class="h-screen flex flex-col items-center justify-center">
+                <h2 class="text-3xl font-bold mb-6">Player Hub</h2>
+                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+                    <button id="create-character-btn" class="btn btn-primary w-full mb-4">Create New Character</button>
+                    <div class="text-center my-2 text-gray-400">OR</div>
+                    <input type="text" id="character-id-input" placeholder="Enter Character ID" class="w-full p-2 bg-gray-700 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button id="load-character-btn" class="btn w-full mt-4">Load Character</button>
+                    <button id="back-to-role-selection-player" class="btn w-full mt-4 bg-gray-700">Back</button>
+                </div>
+            </div>
+
+            <!-- Player: Character Sheet -->
+            <div id="character-sheet" class="hidden">
+                 <div class="main-container">
+                    <!-- Header -->
+                    <div class="grid-header bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row justify-between items-center gap-4">
+                       <div class="text-center md:text-left">
+                            <h2 id="char-name" class="text-3xl font-bold">Character Name</h2>
+                            <p class="text-gray-400">ID: <span id="char-id-display" class="font-mono cursor-pointer" title="Click to copy"></span></p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-center">
+                                <span class="text-sm text-gray-400">HP</span>
+                                <p id="char-hp" class="text-2xl font-bold">10</p>
+                            </div>
+                            <button id="level-up-btn" class="btn btn-primary">Level Up</button>
+                             <button id="main-menu-player" class="btn">Main Menu</button>
+                        </div>
+                    </div>
+                    <!-- Character Image -->
+                    <div class="grid-image bg-gray-800 p-4 rounded-lg flex flex-col items-center justify-center">
+                        <div class="w-full h-48 bg-gray-700 rounded-md mb-4 flex items-center justify-center text-gray-500">User Uploaded Character Image</div>
+                        <button class="btn w-full text-sm">Change Image</button>
+                    </div>
+                    <!-- Experiences -->
+                    <div class="grid-experiences bg-gray-800 p-4 rounded-lg flex flex-col">
+                        <h3 class="text-xl font-semibold mb-2">Experiences</h3>
+                        <div id="experiences-list" class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-2">
+                            <!-- Experiences will be dynamically added here -->
+                        </div>
+                    </div>
+                    <!-- Inventory -->
+                    <div class="grid-inventory bg-gray-800 p-4 rounded-lg flex flex-col">
+                        <h3 class="text-xl font-semibold mb-2">Inventory</h3>
+                        <div id="inventory-list" class="flex-grow overflow-y-auto custom-scrollbar pr-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <!-- Inventory items will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GM View -->
+        <div id="gm-view" class="hidden h-screen flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-3xl font-bold">GM Dashboard</h2>
+                <button id="back-to-role-selection-gm" class="btn">Back</button>
+            </div>
+            <div class="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Player Management -->
+                <div class="bg-gray-800 p-6 rounded-lg flex flex-col">
+                    <h3 class="text-2xl font-semibold mb-4">Player Management</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="gm-character-id-input" placeholder="Enter Character ID to manage" class="w-full p-2 bg-gray-700 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button id="gm-load-character-btn" class="btn">Load</button>
+                    </div>
+                    <div id="gm-player-sheet" class="hidden flex-grow">
+                        <h4 id="gm-char-name" class="text-xl font-bold"></h4>
+                        <p class="text-sm text-gray-400 mb-2">HP: <span id="gm-char-hp"></span></p>
+                        <h5 class="font-semibold mt-4">Inventory</h5>
+                        <div id="gm-inventory-list" class="overflow-y-auto custom-scrollbar pr-2 grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+                        <button id="gm-add-item-btn" class="btn btn-primary w-full mt-4">Add Item to Player</button>
+                    </div>
+                </div>
+
+                <!-- Monster Creator -->
+                <div class="bg-gray-800 p-6 rounded-lg flex flex-col">
+                    <h3 class="text-2xl font-semibold mb-4">Monster Creator / Library</h3>
+                    <div class="flex-grow overflow-y-auto custom-scrollbar pr-2">
+                        <div id="monster-creator-form">
+                            <h4 class="text-xl font-semibold mb-2">Create New Monster</h4>
+                            <input type="text" id="monster-name" placeholder="Monster Name" class="w-full p-2 mb-2 bg-gray-700 rounded-md border border-gray-600">
+                            <input type="number" id="monster-hp" placeholder="HP" class="w-full p-2 mb-2 bg-gray-700 rounded-md border border-gray-600">
+                            <textarea id="monster-experiences" placeholder="Experiences (one per line, e.g., Lv. 1 - Breathes fire)" class="w-full p-2 mb-2 h-24 bg-gray-700 rounded-md border border-gray-600"></textarea>
+                            <button id="save-monster-btn" class="btn btn-primary w-full">Save Monster</button>
+                        </div>
+                        <div id="monster-library" class="mt-6">
+                            <h4 class="text-xl font-semibold mb-2">Saved Monsters</h4>
+                            <div id="monster-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Modals -->
+    <!-- Item Usage Modal -->
+    <div id="item-usage-modal" class="modal-backdrop hidden">
+        <div class="modal-content text-center">
+            <h3 id="modal-item-name" class="text-2xl font-bold mb-2"></h3>
+            <p id="modal-item-lore" class="text-gray-400 mb-4"></p>
+            <p class="text-lg mb-4">Usage Pool: <span id="modal-item-up" class="font-bold"></span> / <span id="modal-item-uc-display" class="font-bold"></span></p>
+            <p id="modal-usage-tracker" class="text-sm text-gray-400 mb-4"></p>
+            <div class="flex gap-4 justify-center">
+                <button id="use-pip-btn" class="btn btn-primary">Use Pip</button>
+                <button id="restore-pip-btn" class="btn">Restore Pip</button>
+            </div>
+            <button id="close-item-modal-btn" class="btn w-full mt-6 bg-gray-700">Close</button>
+        </div>
+    </div>
+    
+    <!-- Level Up Modal -->
+    <div id="level-up-modal" class="modal-backdrop hidden">
+         <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4 text-center">Level Up!</h3>
+            <div class="space-y-3">
+                 <button id="upgrade-exp-btn" class="btn w-full">Upgrade an Experience</button>
+                 <button id="add-exp-btn" class="btn w-full">Add New Experience</button>
+                 <button id="increase-hp-btn" class="btn w-full">Increase Max HP by 1</button>
+            </div>
+            <div id="upgrade-exp-selection" class="hidden mt-4">
+                <select id="exp-to-upgrade-select" class="w-full p-2 bg-gray-700 rounded-md border border-gray-600"></select>
+                <button id="confirm-upgrade-exp-btn" class="btn btn-primary w-full mt-2">Confirm Upgrade</button>
+            </div>
+             <div id="add-exp-input-div" class="hidden mt-4">
+                 <input type="text" id="new-exp-input" placeholder="Enter new experience..." class="w-full p-2 bg-gray-700 rounded-md border border-gray-600">
+                 <button id="confirm-add-exp-btn" class="btn btn-primary w-full mt-2">Confirm Add</button>
+             </div>
+             <button id="close-level-up-modal-btn" class="btn w-full mt-6 bg-gray-700">Cancel</button>
+        </div>
+    </div>
+
+    <!-- GM Add Item Modal -->
+    <div id="gm-add-item-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4">Add New Item</h3>
+            <input type="text" id="new-item-name" placeholder="Item Name" class="w-full p-2 mb-2 bg-gray-700 rounded-md border border-gray-600">
+            <textarea id="new-item-lore" placeholder="Item Lore/Description" class="w-full p-2 mb-2 bg-gray-700 rounded-md border border-gray-600"></textarea>
+            <input type="number" id="new-item-up" placeholder="Usage Pool (Current)" class="w-full p-2 mb-2 bg-gray-700 rounded-md border border-gray-600">
+            <input type="number" id="new-item-uc" placeholder="Usage Cap (Max)" class="w-full p-2 mb-2 bg-gray-700 rounded-md border border-gray-600">
+            <div class="flex gap-4 mt-4">
+                <button id="confirm-add-item-btn" class="btn btn-primary w-full">Add Item</button>
+                <button id="cancel-add-item-btn" class="btn bg-gray-700 w-full">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Character Modal -->
+    <div id="create-character-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h3 class="text-2xl font-bold mb-4">Create Your Character</h3>
+            <input type="text" id="new-char-name-input" placeholder="Enter character name" class="w-full p-2 mb-4 bg-gray-700 rounded-md border border-gray-600">
+            <div class="flex gap-4">
+                <button id="confirm-create-character-btn" class="btn btn-primary w-full">Create</button>
+                <button id="cancel-create-character-btn" class="btn bg-gray-700 w-full">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notification-modal" class="modal-backdrop hidden">
+        <div class="modal-content text-center">
+            <p id="notification-message" class="text-lg mb-4"></p>
+            <button id="close-notification-btn" class="btn btn-primary w-full">OK</button>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal-backdrop hidden">
+        <div class="modal-content text-center">
+            <p id="confirmation-message" class="text-lg mb-6"></p>
+            <div class="flex gap-4">
+                <button id="confirm-action-btn" class="btn btn-primary w-full bg-red-600 hover:bg-red-500">Confirm</button>
+                <button id="cancel-action-btn" class="btn bg-gray-700 w-full">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Logic -->
+    <script type="module">
+        // --- App State ---
+        let userId = null;
+        let currentCharacterId = null;
+        let usageThisSession = 0;
+        let confirmCallback = null;
+
+        // --- Mock Database ---
+        // This object simulates your Firestore database for local testing.
+        const localDb = {
+            characters: {},
+            monsters: {}
+        };
+
+        // --- UI Elements ---
+        const roleSelectionScreen = document.getElementById('role-selection-screen');
+        const playerView = document.getElementById('player-view');
+        const gmView = document.getElementById('gm-view');
+        const playerLoginScreen = document.getElementById('player-login-screen');
+        const characterSheet = document.getElementById('character-sheet');
+        
+        const itemUsageModal = document.getElementById('item-usage-modal');
+        const levelUpModal = document.getElementById('level-up-modal');
+        const gmAddItemModal = document.getElementById('gm-add-item-modal');
+        
+        // --- Navigation Functions ---
+        const showScreen = (screen) => {
+            ['role-selection-screen', 'player-view', 'gm-view', 'player-login-screen', 'character-sheet'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            if (screen) document.getElementById(screen).classList.remove('hidden');
+        };
+
+        const showPlayerSubScreen = (screen) => {
+            ['player-login-screen', 'character-sheet'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            playerView.classList.remove('hidden');
+            document.getElementById(screen).classList.remove('hidden');
+        };
+        
+        // --- Rendering Functions ---
+        const renderCharacterSheet = (charData) => {
+            if (!charData) return;
+            document.getElementById('char-name').textContent = charData.name;
+            document.getElementById('char-hp').textContent = charData.hp;
+            document.getElementById('char-id-display').textContent = currentCharacterId;
+            
+            const experiencesList = document.getElementById('experiences-list');
+            experiencesList.innerHTML = '';
+            charData.experiences.forEach(exp => {
+                const p = document.createElement('p');
+                p.className = 'bg-gray-700 p-3 rounded-md';
+                p.textContent = `Lv. ${exp.level} -> "${exp.text}"`;
+                experiencesList.appendChild(p);
+            });
+
+            const inventoryList = document.getElementById('inventory-list');
+            inventoryList.innerHTML = '';
+            Object.entries(charData.inventory || {}).forEach(([itemId, item]) => {
+                const itemCard = document.createElement('div');
+                itemCard.className = `p-3 rounded-lg text-center cursor-pointer transition-all ${item.usagePool === 0 ? 'bg-red-900/50 text-gray-500' : 'bg-gray-700 hover:bg-gray-600'}`;
+                itemCard.innerHTML = `<h4 class="font-bold">${item.name}</h4><p class="text-xs text-gray-400">(UP: ${item.usagePool}, UC: ${item.usageCap})</p>`;
+                if (item.usagePool > 0) {
+                    itemCard.addEventListener('click', () => openItemUsageModal(itemId, item));
+                }
+                inventoryList.appendChild(itemCard);
+            });
+        };
+
+        const renderGmPlayerSheet = (charId, charData) => {
+            const gmSheet = document.getElementById('gm-player-sheet');
+            gmSheet.classList.remove('hidden');
+            document.getElementById('gm-char-name').textContent = charData.name;
+            document.getElementById('gm-char-hp').textContent = charData.hp;
+
+            const inventoryList = document.getElementById('gm-inventory-list');
+            inventoryList.innerHTML = '';
+            Object.entries(charData.inventory || {}).forEach(([itemId, item]) => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'bg-gray-700 p-2 rounded-md text-sm';
+                itemCard.textContent = `${item.name} (UP: ${item.usagePool})`;
+                inventoryList.appendChild(itemCard);
+            });
+        };
+        
+        const renderMonsters = () => {
+            const monsterList = document.getElementById('monster-list');
+            monsterList.innerHTML = '';
+            Object.entries(localDb.monsters).forEach(([monsterId, monsterData]) => {
+                const monsterCard = document.createElement('div');
+                monsterCard.className = 'bg-gray-700 p-3 rounded-md';
+                monsterCard.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h5 class="font-bold">${monsterData.name} (HP: ${monsterData.hp})</h5>
+                        <button data-id="${monsterId}" class="delete-monster-btn text-red-500 hover:text-red-400 text-xs">Delete</button>
+                    </div>
+                    <p class="text-sm text-gray-400 whitespace-pre-wrap">${monsterData.experiences.join('\n')}</p>
+                `;
+                monsterList.appendChild(monsterCard);
+            });
+            document.querySelectorAll('.delete-monster-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const monsterId = btn.dataset.id;
+                    showConfirmation('Are you sure you want to delete this monster?', () => {
+                        console.log(`--- FIREBASE: DELETE MONSTER ---`);
+                        console.log({ monsterId });
+                        delete localDb.monsters[monsterId];
+                        renderMonsters();
+                    });
+                };
+            });
+        };
+        
+        // --- Modal Logic ---
+        const showNotification = (message) => {
+            document.getElementById('notification-message').textContent = message;
+            document.getElementById('notification-modal').classList.remove('hidden');
+        };
+
+        const showConfirmation = (message, callback) => {
+            document.getElementById('confirmation-message').textContent = message;
+            document.getElementById('confirmation-modal').classList.remove('hidden');
+            confirmCallback = callback;
+        };
+
+        document.getElementById('close-notification-btn').onclick = () => document.getElementById('notification-modal').classList.add('hidden');
+        document.getElementById('confirm-action-btn').onclick = () => {
+            if (confirmCallback) confirmCallback();
+            document.getElementById('confirmation-modal').classList.add('hidden');
+            confirmCallback = null;
+        };
+        document.getElementById('cancel-action-btn').onclick = () => {
+            document.getElementById('confirmation-modal').classList.add('hidden');
+            confirmCallback = null;
+        };
+        document.getElementById('close-item-modal-btn').onclick = () => itemUsageModal.classList.add('hidden');
+
+        const openItemUsageModal = (itemId, item) => {
+            usageThisSession = 0;
+            itemUsageModal.dataset.itemId = itemId;
+            document.getElementById('modal-item-name').textContent = item.name;
+            document.getElementById('modal-item-lore').textContent = item.lore || 'No lore available for this item.';
+            document.getElementById('modal-item-up').textContent = item.usagePool;
+            document.getElementById('modal-item-uc-display').textContent = item.usageCap;
+            updateUsageTracker(item.usageCap);
+            itemUsageModal.classList.remove('hidden');
+        };
+
+        const updateUsageTracker = (cap) => {
+            document.getElementById('modal-usage-tracker').textContent = `Used ${usageThisSession} of ${cap} pips this use.`;
+            document.getElementById('use-pip-btn').disabled = usageThisSession >= cap;
+        };
+        
+        // --- Database-style Functions (with console logs) ---
+
+        const createNewCharacter = (name) => {
+            console.log(`--- FIREBASE: CREATE NEW CHARACTER ---`);
+            console.log({ name });
+            
+            if (!name) return;
+            const newCharId = "char_" + Date.now();
+            const newCharacter = {
+                name: name,
+                hp: 10,
+                experiences: [
+                    { level: 1, text: "Forged in the heart of a star." },
+                    { level: 1, text: "Learned to speak with squirrels." },
+                    { level: 1, text: "Has a surprisingly good singing voice." }
+                ],
+                inventory: {}
+            };
+            localDb.characters[newCharId] = newCharacter;
+            loadCharacter(newCharId);
+        };
+
+        const loadCharacter = (charId) => {
+            console.log(`--- FIREBASE: LOAD CHARACTER ---`);
+            console.log({ charId });
+            
+            if (!charId) return;
+            const charData = localDb.characters[charId];
+
+            if (charData) {
+                currentCharacterId = charId;
+                // In a real app, onSnapshot would go here.
+                // We'll just render it once.
+                renderCharacterSheet(charData);
+                showPlayerSubScreen('character-sheet');
+            } else {
+                showNotification("Character not found!");
+                currentCharacterId = null;
+            }
+        };
+        
+        const loadMonsters = () => {
+            console.log(`--- FIREBASE: LOAD MONSTERS ---`);
+            // In a real app, onSnapshot would go here.
+            renderMonsters();
+        };
+
+        // --- Event Listeners ---
+        // Role Selection
+        document.getElementById('show-player-view-btn').onclick = () => {
+            showScreen('player-view');
+            showPlayerSubScreen('player-login-screen');
+        };
+        document.getElementById('show-gm-view-btn').onclick = () => {
+            showScreen('gm-view');
+            loadMonsters();
+        };
+
+        // Back buttons
+        document.getElementById('back-to-role-selection-player').onclick = () => showScreen('role-selection-screen');
+        document.getElementById('back-to-role-selection-gm').onclick = () => showScreen('role-selection-screen');
+        document.getElementById('main-menu-player').onclick = () => {
+             currentCharacterId = null;
+             showScreen('player-view');
+             showPlayerSubScreen('player-login-screen');
+        };
+
+        // Player actions
+        document.getElementById('create-character-btn').onclick = () => document.getElementById('create-character-modal').classList.remove('hidden');
+        document.getElementById('cancel-create-character-btn').onclick = () => document.getElementById('create-character-modal').classList.add('hidden');
+        document.getElementById('confirm-create-character-btn').onclick = () => {
+            const nameInput = document.getElementById('new-char-name-input');
+            const name = nameInput.value.trim();
+            if (name) {
+                createNewCharacter(name);
+                nameInput.value = '';
+                document.getElementById('create-character-modal').classList.add('hidden');
+            } else {
+                showNotification("Please enter a character name.");
+            }
+        };
+
+        document.getElementById('load-character-btn').onclick = () => {
+            const charId = document.getElementById('character-id-input').value.trim();
+            loadCharacter(charId);
+        };
+        document.getElementById('char-id-display').onclick = (e) => {
+            navigator.clipboard.writeText(e.target.textContent).then(() => {
+                showNotification('Character ID copied to clipboard!');
+            });
+        };
+
+        // Item Usage
+        document.getElementById('use-pip-btn').onclick = () => {
+            const itemId = itemUsageModal.dataset.itemId;
+            const charData = localDb.characters[currentCharacterId];
+            const item = charData.inventory[itemId];
+            
+            if (item.usagePool > 0 && usageThisSession < item.usageCap) {
+                usageThisSession++;
+                const newUP = item.usagePool - 1;
+                
+                console.log(`--- FIREBASE: UPDATE ITEM USAGE (USE) ---`);
+                console.log({ characterId: currentCharacterId, itemId, newUsagePool: newUP });
+                item.usagePool = newUP;
+
+                document.getElementById('modal-item-up').textContent = newUP;
+                updateUsageTracker(item.usageCap);
+                renderCharacterSheet(charData);
+            }
+        };
+        document.getElementById('restore-pip-btn').onclick = () => {
+            const itemId = itemUsageModal.dataset.itemId;
+            const charData = localDb.characters[currentCharacterId];
+            const item = charData.inventory[itemId];
+            const newUP = item.usagePool + 1;
+
+            console.log(`--- FIREBASE: UPDATE ITEM USAGE (RESTORE) ---`);
+            console.log({ characterId: currentCharacterId, itemId, newUsagePool: newUP });
+            item.usagePool = newUP;
+
+            document.getElementById('modal-item-up').textContent = newUP;
+            renderCharacterSheet(charData);
+        };
+
+        // Level Up
+        document.getElementById('level-up-btn').onclick = () => levelUpModal.classList.remove('hidden');
+        document.getElementById('close-level-up-modal-btn').onclick = () => levelUpModal.classList.add('hidden');
+        document.getElementById('increase-hp-btn').onclick = () => {
+            const charData = localDb.characters[currentCharacterId];
+            const newHp = charData.hp + 1;
+            
+            console.log(`--- FIREBASE: UPDATE HP ---`);
+            console.log({ characterId: currentCharacterId, newHp });
+            charData.hp = newHp;
+            
+            renderCharacterSheet(charData);
+            levelUpModal.classList.add('hidden');
+        };
+        document.getElementById('add-exp-btn').onclick = () => {
+             document.getElementById('add-exp-input-div').classList.remove('hidden');
+             document.getElementById('upgrade-exp-selection').classList.add('hidden');
+        };
+        document.getElementById('confirm-add-exp-btn').onclick = () => {
+            const newExpText = document.getElementById('new-exp-input').value;
+            if (!newExpText) return;
+
+            const charData = localDb.characters[currentCharacterId];
+            const newExperience = { level: 1, text: newExpText };
+            charData.experiences.push(newExperience);
+            
+            console.log(`--- FIREBASE: ADD EXPERIENCE ---`);
+            console.log({ characterId: currentCharacterId, newExperiences: charData.experiences });
+            
+            document.getElementById('new-exp-input').value = '';
+            renderCharacterSheet(charData);
+            levelUpModal.classList.add('hidden');
+        };
+        document.getElementById('upgrade-exp-btn').onclick = () => {
+            const experiences = localDb.characters[currentCharacterId].experiences;
+            const select = document.getElementById('exp-to-upgrade-select');
+            select.innerHTML = '';
+            experiences.forEach((exp, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `Lv. ${exp.level} - ${exp.text}`;
+                select.appendChild(option);
+            });
+            document.getElementById('upgrade-exp-selection').classList.remove('hidden');
+            document.getElementById('add-exp-input-div').classList.add('hidden');
+        };
+        document.getElementById('confirm-upgrade-exp-btn').onclick = () => {
+            const index = document.getElementById('exp-to-upgrade-select').value;
+            const charData = localDb.characters[currentCharacterId];
+            charData.experiences[index].level += 1;
+
+            console.log(`--- FIREBASE: UPGRADE EXPERIENCE ---`);
+            console.log({ characterId: currentCharacterId, updatedExperiences: charData.experiences });
+            
+            renderCharacterSheet(charData);
+            levelUpModal.classList.add('hidden');
+        };
+
+        // GM Actions
+        document.getElementById('gm-load-character-btn').onclick = () => {
+            const charId = document.getElementById('gm-character-id-input').value.trim();
+            if (!charId) return;
+
+            console.log(`--- FIREBASE: GM LOAD CHARACTER ---`);
+            console.log({ charId });
+
+            const charData = localDb.characters[charId];
+            if(charData){
+                renderGmPlayerSheet(charId, charData);
+                gmAddItemModal.dataset.charId = charId;
+            } else {
+                showNotification('Character not found.');
+            }
+        };
+
+        document.getElementById('gm-add-item-btn').onclick = () => gmAddItemModal.classList.remove('hidden');
+        document.getElementById('cancel-add-item-btn').onclick = () => gmAddItemModal.classList.add('hidden');
+        document.getElementById('confirm-add-item-btn').onclick = () => {
+            const charId = gmAddItemModal.dataset.charId;
+            const newItem = {
+                name: document.getElementById('new-item-name').value,
+                lore: document.getElementById('new-item-lore').value,
+                usagePool: parseInt(document.getElementById('new-item-up').value) || 0,
+                usageCap: parseInt(document.getElementById('new-item-uc').value) || 0,
+            };
+            if (!newItem.name) {
+                showNotification("Item must have a name.");
+                return;
+            }
+            
+            const newItemId = "item_" + Date.now();
+            console.log(`--- FIREBASE: GM ADD ITEM ---`);
+            console.log({ characterId: charId, itemId: newItemId, itemData: newItem });
+
+            const charData = localDb.characters[charId];
+            if (!charData.inventory) charData.inventory = {};
+            charData.inventory[newItemId] = newItem;
+
+            renderGmPlayerSheet(charId, charData);
+
+            gmAddItemModal.classList.add('hidden');
+            document.getElementById('new-item-name').value = '';
+            document.getElementById('new-item-lore').value = '';
+            document.getElementById('new-item-up').value = '';
+            document.getElementById('new-item-uc').value = '';
+        };
+
+        document.getElementById('save-monster-btn').onclick = () => {
+            const monster = {
+                name: document.getElementById('monster-name').value,
+                hp: parseInt(document.getElementById('monster-hp').value),
+                experiences: document.getElementById('monster-experiences').value.split('\n').filter(Boolean),
+            };
+            if (!monster.name || isNaN(monster.hp)) {
+                showNotification('Monster must have a name and HP.');
+                return;
+            }
+            const newMonsterId = "monster_" + Date.now();
+            console.log(`--- FIREBASE: SAVE MONSTER ---`);
+            console.log({ monsterId: newMonsterId, monsterData: monster });
+            localDb.monsters[newMonsterId] = monster;
+            
+            renderMonsters();
+            document.getElementById('monster-name').value = '';
+            document.getElementById('monster-hp').value = '';
+            document.getElementById('monster-experiences').value = '';
+        };
+
+        // --- App Initialization ---
+        const initializeApp = () => {
+            console.log("App Initializing...");
+            // Replace this with your actual Firebase auth logic
+            userId = "mock_user_123";
+            console.log("Mock user ready with ID:", userId);
+            showScreen('role-selection-screen');
+        };
+
+        initializeApp();
+
+    </script>
+</body>
+</html>
+
