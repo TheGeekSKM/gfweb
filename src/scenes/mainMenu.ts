@@ -83,7 +83,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
         {
             k.tween(playerModeButton.scale, k.vec2(1), 0.1, (s) => { playerModeButton.scale = s  });
             k.wait(0.1, () => {
-                k.debug.log("Switching to Player Mode...");
+                k.go("pLoadCreateChar");
             });
         }
     });
