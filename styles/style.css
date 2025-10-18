@@ -11,6 +11,60 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  --width: 420;
+  --height: 850;
+}
+
+@font-face {
+  font-family: "Monogram";
+  src: url('../public/font/monogram-extended.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  position: relative;
+  margin: 0;
+}
+
+.uiLayer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--width) * 1px);
+  height: calc(var(--height) * 1px);
+  transform: translate(-50%, -50%) scale(var(--scale, 0));
+  transform-origin: center;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+#loadPlayerInput {
+  display: none;
+  position: absolute;
+  top: 10px;
+  left: 49.75%;
+  transform: translateX(-50%);
+  padding: 10px;
+  font-size: 2.5em;
+  border: 5px solid #B5CDFF;
+  border-radius: 10px;
+  outline: none;
+  caret-color: #B5CDFF;
+  caret-shape: block;
+  caret: blink 1s step-end infinite;
+  background-color: #050505;
+  color: #B5CDFF;
+
+  font-family: 'Monogram', monospace;
 }
 
 #gameCanvas {

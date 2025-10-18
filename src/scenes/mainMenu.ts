@@ -11,15 +11,15 @@ export function MainMenuScene(k: KAPLAYCtx) : void
     ]);
 
     const titleText = fullBorder.add([
-        k.text("Gamblers Fallacy RPG", { size: 48, font: "monogram" }),
-        k.pos(0, -k.height() / 2 + 50),
+        k.text("Gamblers Fallacy RPG", { size: 48, font: "monogram", width: k.width() - 40, align: "center" }),
+        k.pos(0, -k.height() / 2 + 70),
         k.anchor("center"),
         k.color(k.rgb(200, 200, 200)),
     ]);
 
     const subtitleText = fullBorder.add([
-        k.text("By Sai Mangipudi", { size: 24, font: "monogram" }),
-        k.pos(0, -k.height() / 2 + 100),
+        k.text("By Sai Mangipudi", { size: 24, font: "monogram", width: k.width() - 40, align: "center" }),
+        k.pos(0, -k.height() / 2 + 150),
         k.anchor("center"),
         k.color(k.rgb(150, 150, 150)),
     ]);
@@ -43,7 +43,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
 
     const playerModeButtonText = playerModeButton.add([
         k.text("Player Mode", { size: 32, font: "monogram" }),
-        k.pos(0, -3),
+        k.pos(0, 0),
         k.anchor("center"),
         k.color(k.rgb(150, 250, 150)),
         k.area(),
@@ -62,7 +62,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
 
     const gmModeButtonText = gmModeButton.add([
         k.text("GM Mode", { size: 32, font: "monogram" }),
-        k.pos(0, -3),
+        k.pos(0, 0),
         k.anchor("center"),
         k.color(k.rgb(150, 150, 250)),
         k.area(),
@@ -70,7 +70,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
     ]);
 
     let isPlayerModeButtonHovered = false;
-    playerModeButton.onMouseDown(() => {
+    playerModeButton.onMousePress(() => {
         if (playerModeButton.hasPoint(k.mousePos())) 
         {
             isPlayerModeButtonHovered = true;
