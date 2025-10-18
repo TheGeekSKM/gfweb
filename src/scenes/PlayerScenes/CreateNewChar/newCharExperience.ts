@@ -137,7 +137,7 @@ export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
         {
             k.tween(finishButton.scale, k.vec2(1), 0.1, (s) => { finishButton.scale = s  });
             k.wait(0.1, () => {
-                k.debug.log("Finished Adding Experiences. Proceeding...");
+                k.go("newCharInv");
             });
         }
         isFinishButtonHovered = false;
