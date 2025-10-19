@@ -29,22 +29,8 @@ export class Store<T>
         if (nextState !== this.state)
         {
             this.state = nextState;
-            this.Notify();
         }
-    }
-
-    // returns a function to unsubscribe
-    public Subscribe(listener: Listener<T>): () => void {
-        this.listeners.add(listener);
-        return () => {
-            this.listeners.delete(listener);
-        }
-    }  
-
-    public Notify(): void
-    {
-        this.listeners.forEach(listener => listener(this.state));
-    }
+    } 
 }
 
 export interface AppState

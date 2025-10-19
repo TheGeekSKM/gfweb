@@ -31,16 +31,16 @@ export function MainMenuScene(k: KAPLAYCtx) : void
             k.color(k.rgb(150, 150, 150)),
         ]);
 
-        const buttonBorder = fullBorder.add([
-            k.rect(250, 200, { fill: false, radius: 12 }),
-            k.pos(0, 0),
+        const explanationText = fullBorder.add([
+            k.text("This is simply a Companion App for the RPG. It does not contain any of the rules... :(", { size: 24, font: "monogram", width: k.width() - 40, align: "center" }),
+            k.pos(0, k.height() / 2 - 80),
             k.anchor("center"),
-            k.outline(5, k.rgb(200, 200, 200))
+            k.color(k.rgb(150, 150, 150)),
         ]);
 
-        const playerModeButton = buttonBorder.add([
-            k.rect(200, 60, { fill: true, radius: 8 }),
-            k.pos(0, -40),
+        const playerModeButton = fullBorder.add([
+            k.rect(fullBorder.width - 40, 60, { fill: true, radius: 8 }),
+            k.pos(0, 0),
             k.anchor("center"),
             k.color(k.rgb(50, 150, 50)),
             k.outline(3, k.rgb(150, 250, 150)),
@@ -49,7 +49,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
         ]);
 
         const playerModeButtonText = playerModeButton.add([
-            k.text("Player Mode", { size: 32, font: "monogram" }),
+            k.text("Begin", { size: 32, font: "monogram" }),
             k.pos(0, 0),
             k.anchor("center"),
             k.color(k.rgb(150, 250, 150)),
@@ -57,24 +57,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
             k.scale(1),
         ]);
 
-        const gmModeButton = buttonBorder.add([
-            k.rect(200, 60, { fill: true, radius: 8 }),
-            k.pos(0, 40),
-            k.anchor("center"),
-            k.color(k.rgb(50, 50, 150)),
-            k.outline(3, k.rgb(150, 150, 250)),
-            k.area(),
-            k.scale(1),
-        ]);
-
-        const gmModeButtonText = gmModeButton.add([
-            k.text("GM Mode", { size: 32, font: "monogram" }),
-            k.pos(0, 0),
-            k.anchor("center"),
-            k.color(k.rgb(150, 150, 250)),
-            k.area(),
-            k.scale(1),
-        ]);
+        
 
         let isPlayerModeButtonHovered = false;
         playerModeButton.onMousePress(() => {
@@ -95,24 +78,7 @@ export function MainMenuScene(k: KAPLAYCtx) : void
             }
         });
 
-        let isGmModeButtonHovered = false;
-        gmModeButton.onMouseDown(() => {
-            if (gmModeButton.hasPoint(k.mousePos())) 
-            {
-                isGmModeButtonHovered = true;
-                k.tween(gmModeButton.scale, k.vec2(1.1), 0.1, (s) => { gmModeButton.scale = s  });
-            }
-        });
-
-        gmModeButton.onMouseRelease(() => {
-            if (isGmModeButtonHovered) 
-            {
-                k.tween(gmModeButton.scale, k.vec2(1), 0.1, (s) => { gmModeButton.scale = s  });
-                k.wait(0.1, () => {
-                    k.debug.log("Switching to GM Mode...");
-                });
-            }
-        });
+       
 
     });
 }

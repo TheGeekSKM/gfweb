@@ -1,10 +1,5 @@
 import k from "./kaplayCtx.ts";
-import type { GameObj, KAPLAYCtx } from "kaplay";
 import { LoadAssets } from "./data/loadAssets.ts";
-import * as Data from "./data/globalData.ts";
-import * as Types from "./data/templates.ts";
-import { AddExperience, AddItemObj } from "./ui.ts";
-import { AppStore } from "./store.ts";
 
 import { MainMenuScene } from "./scenes/mainMenu.ts";
 import { LoadCreateCharMenu } from "./scenes/PlayerScenes/pLoadCreateCharMenu.ts";
@@ -17,11 +12,12 @@ import { CreateNewCharInventory } from "./scenes/PlayerScenes/CreateNewChar/newC
 
 import { CharSheetScene } from "./scenes/PlayerScenes/charSheet.ts";
 import { ItemUsageMenu } from "./scenes/PlayerScenes/itemUse.ts";
+import { TakeDamageMenu } from "./scenes/PlayerScenes/takeDamage.ts";
+import { NewCharExpUpgrade } from "./scenes/PlayerScenes/Upgrade/newExperienceUpgrade.ts";
+import { IncreaseHPUpgrade } from "./scenes/PlayerScenes/Upgrade/increaseHPUpgrade.ts";
+import { LevelUpMenu } from "./scenes/PlayerScenes/Upgrade/levelUpMenu.ts";
 
 LoadAssets(k);
-
-
-
 
 MainMenuScene(k);
 LoadCreateCharMenu(k);
@@ -36,6 +32,12 @@ CreateNewCharInventory(k);
 // Character Sheet Scene
 CharSheetScene(k);
 ItemUsageMenu(k);
+TakeDamageMenu(k);
+
+// Level Up / Upgrade Scenes
+NewCharExpUpgrade(k);
+IncreaseHPUpgrade(k);
+LevelUpMenu(k);
 
 k.go("mainMenu");
 

@@ -224,7 +224,7 @@ export function ItemUsageMenu(k: KAPLAYCtx)
                 if (backButton.hasPoint(k.mousePos()))
                 {
                     // Back Button Logic
-                    k.go(AppStore.GetState().previousScene === "" ? "mainMenu" : AppStore.GetState().previousScene);
+                    k.go("charSheet");
                 }
 
                 k.tween(backButton.scale, k.vec2(1), 0.1, (s) => {

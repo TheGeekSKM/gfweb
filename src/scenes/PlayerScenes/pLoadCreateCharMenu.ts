@@ -30,7 +30,7 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
 
         const choiceBorder = fullBorder.add([
             k.rect(k.width() - 100, 300, {radius: 10}),
-            k.pos(0, 0),
+            k.pos(0, 20),
             k.anchor("center"),
             k.color(k.rgb(56, 90, 153)),
         ]);

@@ -19,10 +19,10 @@ export function Publish(path: string, data: any)
     set(ref(database, path), data);
 }
 
-export function Subscribe(path: string, callback: (data: any) => void, failCallback?: () => void)
+export function Subscribe(path: string, callback: (data: any) => void, failCallback?: () => void) : () => void
 {
     const dataRef = ref(database, path);
-    onValue(dataRef, (snapshot) => {
+    const unsubscribe = onValue(dataRef, (snapshot) => {
         if (snapshot.exists()) 
         {
             const data = snapshot.val();
@@ -36,6 +36,8 @@ export function Subscribe(path: string, callback: (data: any) => void, failCallb
             }
         }
     });
+
+    return unsubscribe;
 }
 
 export function LoadCharacterData(charID: string, callback?: (data: any) => void, failCallback?: () => void)
