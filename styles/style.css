@@ -167,6 +167,26 @@ body {
   font-family: 'Monogram', monospace;
 }
 
+#actualHPInput {
+  display: none;
+  position: absolute;
+  top: 10px;
+  left: 49.75%;
+  transform: translateX(-50%);
+  padding: 10px;
+  font-size: 2.5em;
+  border: 5px solid #B5CDFF;
+  border-radius: 10px;
+  outline: none;
+  caret-color: #B5CDFF;
+  caret-shape: block;
+  caret: blink 1s step-end infinite;
+  background-color: #050505;
+  color: #B5CDFF;
+
+  font-family: 'Monogram', monospace;
+}
+
 #gameCanvas {
   position: absolute;
   background-color: #000000;

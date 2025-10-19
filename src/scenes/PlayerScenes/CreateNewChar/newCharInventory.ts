@@ -3,7 +3,7 @@ import * as Types from "../../../data/templates";
 import * as Data from "../../../data/globalData";
 import { AddItemObj } from "../../../ui.js";
 
-export function NewCharInventory(k: KAPLAYCtx) : void
+export function CreateNewCharInventory(k: KAPLAYCtx) : void
 {
     k.scene("newCharInv", () => {
         const fullBorder = k.add([
