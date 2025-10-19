@@ -172,6 +172,10 @@ export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
         experienceInputField.style.display = "block";
     }
 
+    k.onSceneLeave(() => {
+        experienceInputField.style.display = "none";  
+    });
+
     let isDragging = false;
     let lastMouseY = 0;
 
