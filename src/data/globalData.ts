@@ -1,14 +1,23 @@
 import * as Types from "./templates.ts";
+import * as Firebase from "../firebase.ts";
 
 export const VIRTUAL_WIDTH : number = window.innerWidth;
 export const VIRTUAL_HEIGHT : number = window.innerHeight;
 
-export const PLAYER = Types.CreateNewCharacter("Player, Destroyer of the worlds and ancients", 1, [
-    { name: "Defeated the Ancient Dragon", level: 1 },
-    { name: "Conquered the Forgotten Tomb", level: 2 },
-    { name: "Became the Champion of the Arena", level: 3 }
-], [
-    { itemName: "Sword of a Thousand Truths", usageCap : 10, usagePool: 10 },
-    { itemName: "Shield of Eternal Light", usageCap : 5, usagePool: 5 },
-    { itemName: "Potion of Infinite Healing", usageCap : 3, usagePool: 3 }
-]);
+let PLAYER = Types.CreateNewCharacter("Player, Destroyer of the worlds and ancients", 1, [], []);
+
+export let playerLoaded : boolean = false;
+
+export function GetPlayerData() : Types.Character
+{
+    return PLAYER;
+}
+
+export function LoadNewPlayerData(charID: string) : void
+{
+    Firebase.LoadCharacterData(charID, (data) => {
+        PLAYER = data;
+        console.log("Player data loaded:", PLAYER);
+        playerLoaded = true;
+    });
+}

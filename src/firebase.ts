@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, onValue, ref, set } from "firebase/database";
+import { getDatabase, onValue, ref, set, get } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjHqv2w-hnUwgDCjxu_5-bf2qqWEeQcgk",
@@ -34,6 +34,33 @@ export function Subscribe(path: string, callback: (data: any) => void, failCallb
             {
                 failCallback();
             }
+        }
+    });
+}
+
+export function LoadCharacterData(charID: string, callback?: (data: any) => void, failCallback?: () => void)
+{
+    const path = `players/${charID}`;
+    get(ref(database, path)).then((snapshot) => {
+        if (snapshot.exists()) 
+        {
+            const data = snapshot.val();
+            if (callback) {
+                callback(data);
+            }
+        }
+        else
+        {
+            if (failCallback)
+            {
+                failCallback();
+            }
+        }
+    }).catch((error) => {
+        console.error("Error loading character data:", error);
+        if (failCallback)
+        {
+            failCallback();
         }
     });
 }

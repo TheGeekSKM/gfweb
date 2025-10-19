@@ -1,4 +1,6 @@
 import type { KAPLAYCtx } from "kaplay";
+import * as Firebase from "../../firebase";
+import * as Data from "../../data/globalData.ts";
 
 export function LoadCreateCharMenu(k: KAPLAYCtx) 
 {
@@ -125,13 +127,21 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
         });
 
         loadCharButtonBorder.onMouseRelease(() => {
-            if (isLoadCharButtonHovered) 
+            if (isLoadCharButtonHovered && loadCharButtonBorder.hasPoint(k.mousePos()))
             {
+                if (loadCharInputField.value.trim() === "")
+                {
+                    k.debug.log("Please enter a Character ID to load a character.");
+                    return;
+                }
+
                 k.tween(loadCharButtonBorder.scale, k.vec2(1), 0.1, (s) => { loadCharButtonBorder.scale = s  });
                 k.wait(0.1, () => {
-                    k.debug.log("Loading Character...");
+                    Data.LoadNewPlayerData(loadCharInputField.value.trim());
+                    k.go("loadingCharData");
                 });
             }
+            isLoadCharButtonHovered = false;
         });
 
         const loadCharInputField = document.getElementById("loadPlayerInput") as HTMLInputElement;

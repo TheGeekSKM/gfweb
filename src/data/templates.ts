@@ -49,10 +49,8 @@ export function CreateNewCharacter(cName: string, mHitPoints: number, expList: E
         experienceList: expList,
         inventory: inventoryRecord,
         isDead: false,
-        characterID: ""
+        characterID: `${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`
     };
-
-    newCharacter.characterID = newCharacter.charName.toLowerCase() + "_" + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
 
     return newCharacter;
 }

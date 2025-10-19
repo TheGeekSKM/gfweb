@@ -1,7 +1,8 @@
 import type { KAPLAYCtx } from "kaplay";
 import * as Types from "../../../data/templates";
 import * as Data from "../../../data/globalData";
-import { AddItemObj } from "../../../ui.js";
+import { AddItemObj } from "../../../ui";
+import * as Firebase from "../../../firebase"
 
 export function CreateNewCharInventory(k: KAPLAYCtx) : void
 {
@@ -272,7 +273,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         function RenderItems() 
         {
             let currentYPos = -((itemListContainer.height / 2) - 20);
-            const itemList = Types.RecordToItemList(Data.PLAYER.inventory);
+            const itemList = Types.RecordToItemList(Data.GetPlayerData().inventory);
             for (const item of itemList)
             {
                 const itemObj = AddItemObj(k, item, itemListContainer, OnItemClick);
@@ -366,7 +367,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
                 k.wait(0.1, () => {
                     const newItem = CreateItemFromInputs(itemNameInputField.value, itemUsagePoolInputField.value, itemUsageCapInputField.value);
                     if (newItem) {
-                        Types.AddItemToInventory(Data.PLAYER, newItem);
+                        Types.AddItemToInventory(Data.GetPlayerData(), newItem);
                         itemNameInputField.value = "";
                         itemUsagePoolInputField.value = "";
                         itemUsageCapInputField.value = "";
@@ -407,6 +408,8 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         });
 
         k.onSceneLeave(() => {
+            Firebase.Publish("players/" + Data.GetPlayerData().characterID, Data.GetPlayerData());
+
             itemNameInputField.style.display = "none";
             itemUsagePoolInputField.style.display = "none";
             itemUsageCapInputField.style.display = "none";

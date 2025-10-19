@@ -73,7 +73,7 @@ export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
         const experienceValue = experienceInputField.value.trim();
         if (experienceValue !== "")
         {
-            Data.PLAYER.experienceList.push({ name: experienceValue, level: 1 });
+            Data.GetPlayerData().experienceList.push({ name: experienceValue, level: 1 });
             experienceInputField.value = "";
             k.go("newCharExp");
         }
@@ -145,12 +145,12 @@ export function CreateNewCharExperiences(k: KAPLAYCtx, ) : void
 
     function OnExperienceClick(exp : Types.Experience)
     {
-        Data.PLAYER.experienceList = Data.PLAYER.experienceList.filter(e => e !== exp);
+        Data.GetPlayerData().experienceList = Data.GetPlayerData().experienceList.filter(e => e !== exp);
         k.go("newCharExp");
     }
 
     let currentYPos = -((experienceListContainer.height / 2) - 20);
-    for (const exp of Data.PLAYER.experienceList)
+    for (const exp of Data.GetPlayerData().experienceList)
     {
         const expObj = AddExperience(k, exp, experienceListContainer, OnExperienceClick);
         expObj.pos.y = currentYPos + (expObj.height / 2);

@@ -7,6 +7,8 @@ import { AddExperience, AddItemObj } from "./ui.ts";
 
 import { MainMenuScene } from "./scenes/mainMenu.ts";
 import { LoadCreateCharMenu } from "./scenes/PlayerScenes/pLoadCreateCharMenu.ts";
+import { LoadingCharacterData } from "./scenes/PlayerScenes/loadingCharData.ts";
+
 import { CreateNewCharName } from "./scenes/PlayerScenes/CreateNewChar/newPlayerName.ts";
 import { CreateNewCharHPSelect } from "./scenes/PlayerScenes/CreateNewChar/newHPSelect.ts";
 import { CreateNewCharExperiences } from "./scenes/PlayerScenes/CreateNewChar/newCharExperience.ts";
@@ -17,6 +19,7 @@ LoadAssets(k);
 
 MainMenuScene(k);
 LoadCreateCharMenu(k);
+LoadingCharacterData(k);
 
 // New Character Creation Scenes
 CreateNewCharName(k);

@@ -75,8 +75,8 @@ export function CreateNewCharHPSelect(k: KAPLAYCtx) : void
             if (isProceedButtonHovered) {
                 k.tween(proceedButton.scale, k.vec2(1), 0.1, (s) => { proceedButton.scale = s });
                 k.wait(0.1, () => {
-                    Data.PLAYER.maxHitPoints = parseInt(hitPointsInputField.value) || 10;
-                    Data.PLAYER.hitPoints = Data.PLAYER.maxHitPoints;
+                    Data.GetPlayerData().maxHitPoints = parseInt(hitPointsInputField.value) || 10;
+                    Data.GetPlayerData().hitPoints = Data.GetPlayerData().maxHitPoints;
                     hitPointsInputField.style.display = "none";
                     k.go("newCharExp");
                 });

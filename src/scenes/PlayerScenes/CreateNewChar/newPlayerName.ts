@@ -79,7 +79,7 @@ export function CreateNewCharName(k: KAPLAYCtx) : void
             {
                 k.tween(proceedButton.scale, k.vec2(1), 0.1, (s) => { proceedButton.scale = s  });
                 k.wait(0.1, () => {
-                    Data.PLAYER.charName = nameInputField.value || "Unnamed Hero";
+                    Data.GetPlayerData().charName = nameInputField.value || "Unnamed Hero";
                     k.go("charHPSelect");
                 });
             }
