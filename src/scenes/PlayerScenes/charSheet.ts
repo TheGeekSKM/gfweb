@@ -27,7 +27,6 @@ export function CharSheetScene(k: KAPLAYCtx) : void
                     }
                 }), "CharSheet_FirebasePlayerDataUpdate");
     
-                k.debug.log("Player data updated from Firebase subscription.");
                 Render();
             }
     
@@ -99,7 +98,7 @@ export function CharSheetScene(k: KAPLAYCtx) : void
 
         const experienceScrollContainer = fullBorder.add([
             k.rect(fullBorder.width - 20, fullBorder.height / 4, { radius: 10 }),
-            k.pos(0, changeHealthButton.pos.y + 100),
+            k.pos(0, changeHealthButton.pos.y + (fullBorder.height / 4) / 2 + 40),
             k.anchor("center"),
             k.color(k.rgb(56, 90, 153)),
             k.mask("intersect"),
@@ -130,8 +129,8 @@ export function CharSheetScene(k: KAPLAYCtx) : void
         ]);
 
         const levelUpButton = fullBorder.add([
-            k.rect(150, 40, { radius: 10 }),
-            k.pos(0, fullBorder.height / 2 - 30),
+            k.rect(130, 40, { radius: 10 }),
+            k.pos(-fullBorder.width / 2 + 95, fullBorder.height / 2 - 30),
             k.anchor("center"),
             k.color(k.rgb(200, 200, 50)),
             k.outline(3, k.rgb(250, 250, 150)),
@@ -146,10 +145,26 @@ export function CharSheetScene(k: KAPLAYCtx) : void
             k.color(k.rgb(5, 5, 5)),
         ]);
 
+        const addItemButton = fullBorder.add([
+            k.rect(130, 40, { radius: 10 }),
+            k.pos(fullBorder.width / 2 - 95, fullBorder.height / 2 - 30),
+            k.anchor("center"),
+            k.color(k.rgb(50, 200, 50)),
+            k.outline(3, k.rgb(150, 250, 150)),
+            k.area(),
+            k.scale(1),
+        ]);
+
+        const addItemButtonText = addItemButton.add([
+            k.text("Add Item", { size: 18, font: "monogram", width: addItemButton.width - 20, align: "center" }),
+            k.pos(0, 0),
+            k.anchor("center"),
+            k.color(k.rgb(5, 5, 5)),
+        ]);
+
         function OnItemClick(item : Types.Item)
         {
             if (mouseInExperience) return;
-            k.debug.log(`Clicked on item: ${item.itemName}`);
             AppStore.SetState(prevState => ({
                 ...prevState,
                 currentItemInUse : item
@@ -159,13 +174,11 @@ export function CharSheetScene(k: KAPLAYCtx) : void
 
         function OnChangeHPClick()
         {
-            k.debug.log("Change HP Clicked");
             k.go("takeDamageMenu");
         }
 
         function OnLevelUpClick()
         {
-            k.debug.log("Level Up Clicked");
             k.go("levelUpMenu");
         }
 
@@ -268,6 +281,26 @@ export function CharSheetScene(k: KAPLAYCtx) : void
                 });
                 isHoveringOverLevelUpButton = false;
             }
+        });
+
+        let isHoveringOverAddItemButton = false;
+        addItemButton.onMousePress(() => {
+            if (addItemButton.hasPoint(k.mousePos()))
+            {
+                isHoveringOverAddItemButton = true;
+                k.tween(addItemButton.scale, k.vec2(1.1), 0.1, (s) => { addItemButton.scale = s  });
+            }
+        });
+
+        addItemButton.onMouseRelease(() => {
+            if (isHoveringOverAddItemButton)
+            {
+                k.tween(addItemButton.scale, k.vec2(1), 0.1, (s) => { addItemButton.scale = s  });
+                k.wait(0.1, () => {
+                    k.go("addItemMenu");
+                });
+            }
+            isHoveringOverAddItemButton = false;
         });
 
         let isDraggingExperience = false;

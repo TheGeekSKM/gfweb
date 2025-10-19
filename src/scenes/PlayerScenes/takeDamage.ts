@@ -22,7 +22,6 @@ export function TakeDamageMenu(k: KAPLAYCtx) : void
                 }), "TakeDamageMenu_FirebasePlayerDataUpdate");
 
                 Render();
-                k.debug.log("Player data updated from Firebase subscription.");
             }
         });
 

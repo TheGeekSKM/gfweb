@@ -21,6 +21,7 @@ export type Character = {
     inventory: Inventory;
     isDead: boolean;
     characterID: string;
+    messageFromServer: string;
 }
 
 export function ItemArrayToInventory(itemArr: Item[]) : Inventory
@@ -49,7 +50,8 @@ export function CreateNewCharacter(cName: string, mHitPoints: number, expList: E
         experienceList: expList,
         inventory: inventoryRecord,
         isDead: false,
-        characterID: `${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`
+        characterID: `${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`,
+        messageFromServer: "",
     };
 
     return newCharacter;

@@ -4,15 +4,15 @@ import { AddItemObj } from "../../../ui";
 import * as Firebase from "../../../firebase"
 import { AppStore } from "../../../store";
 
-export function CreateNewCharInventory(k: KAPLAYCtx) : void
+export function AddItemMenu(k: KAPLAYCtx) : void
 {
     
-    k.scene("newCharInv", () => {
+    k.scene("addItemMenu", () => {
         AppStore.SetState((prevState) => ({
             ...prevState,
-            currentScene: "newCharInv",
+            currentScene: "addItemMenu",
             previousScene: prevState.currentScene,
-        }), "CreateNewCharInventoryScene");
+        }), "AddItemMenu");
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, {radius: 10, fill: false}),
             k.anchor("center"),
@@ -21,7 +21,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         ]);
 
         const titleText = fullBorder.add([
-            k.text("Create A New Character", {size: 36, font: "monogram", width: k.width() - 40, align: "center"}),
+            k.text("Add An Item", {size: 36, font: "monogram", width: k.width() - 40, align: "center"}),
             k.pos(0, -k.height() / 2 + 60),
             k.anchor("center"),
             k.color(k.rgb(94, 150, 255))
@@ -123,7 +123,6 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
             k.color(k.rgb(5, 5, 5)),
         ]);
 
-        
 
         let isFinishButtonHovered = false;
         finishButton.onMousePress(() => {
@@ -139,6 +138,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
             {
                 k.tween(finishButton.scale, k.vec2(1), 0.1, (s) => { finishButton.scale = s  });
                 k.wait(0.1, () => {
+                    Firebase.Publish(`players/${AppStore.GetState().player.characterID}/inventory`, AppStore.GetState().player.inventory);
                     k.go("charSheet");
                 });
             }
@@ -146,6 +146,18 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         });
 
         
+
+        
+        function OnItemClick(item : Types.Item) 
+        {
+            console.log("Item Clicked:", item);
+            AppStore.SetState((prevState) => ({
+                ...prevState,
+                currentItemInUse: item,
+            }), "AddItemMenu_OnItemClick");
+
+            k.go("itemUsageMenu");
+        }
         
         function RenderItems() 
         {
@@ -153,7 +165,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
             const itemList = Types.RecordToItemList(AppStore.GetState().player.inventory);
             for (const item of itemList)
             {
-                const itemObj = AddItemObj(k, item, itemListContainer, (() => {}));
+                const itemObj = AddItemObj(k, item, itemListContainer, OnItemClick);
                 itemObj.pos.y = currentYPos + (itemObj.height / 2);
                 itemObj.pos.x -= 20;
                 currentYPos += itemObj.height + 10;
@@ -205,7 +217,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
             errorBoxText.text = message;
             k.tween(errorBox.pos.y, -fullBorder.height / 2 + 40, 0.2, (p) => { errorBox.pos.y = p });
             k.wait(3).then(() => {
-                k.tween(errorBox.pos.y, -400, 0.5, (p) => { errorBox.pos.y = p });
+                k.tween(errorBox.pos.y, -fullBorder.height, 0.5, (p) => { errorBox.pos.y = p });
             });
         }
 
@@ -285,8 +297,6 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         });
 
         k.onSceneLeave(() => {
-            Firebase.Publish("players/" + AppStore.GetState().player.characterID, AppStore.GetState().player);
-
             itemNameInputField.style.display = "none";
             itemUsagePoolInputField.style.display = "none";
             itemUsageCapInputField.style.display = "none";

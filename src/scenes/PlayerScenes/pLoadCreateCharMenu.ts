@@ -153,7 +153,6 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
                             player : data,
                             playerLoaded : true,
                         }), "LoadCreateCharMenu_OnCharacterDataLoaded");
-                        k.debug.log("Character data loaded into AppStore:", data);
                     });
 
                     k.go("loadingCharData");

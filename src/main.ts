@@ -1,5 +1,7 @@
 import k from "./kaplayCtx.ts";
 import { LoadAssets } from "./data/loadAssets.ts";
+import * as Firebase from "./firebase.ts";
+import { AppStore } from "./store.ts";
 
 import { MainMenuScene } from "./scenes/mainMenu.ts";
 import { LoadCreateCharMenu } from "./scenes/PlayerScenes/pLoadCreateCharMenu.ts";
@@ -16,6 +18,7 @@ import { TakeDamageMenu } from "./scenes/PlayerScenes/takeDamage.ts";
 import { NewCharExpUpgrade } from "./scenes/PlayerScenes/Upgrade/newExperienceUpgrade.ts";
 import { IncreaseHPUpgrade } from "./scenes/PlayerScenes/Upgrade/increaseHPUpgrade.ts";
 import { LevelUpMenu } from "./scenes/PlayerScenes/Upgrade/levelUpMenu.ts";
+import { AddItemMenu } from "./scenes/PlayerScenes/Upgrade/addItemMenu.ts";
 
 LoadAssets(k);
 
@@ -37,7 +40,15 @@ TakeDamageMenu(k);
 // Level Up / Upgrade Scenes
 NewCharExpUpgrade(k);
 IncreaseHPUpgrade(k);
+AddItemMenu(k);
 LevelUpMenu(k);
+
+Firebase.Subscribe(`players/${AppStore.GetState().player.characterID}/messageFromServer`, (data) => {
+    if (data)
+    {
+        k.debug.log("[DEALER]:", data);
+    }
+});
 
 k.go("mainMenu");
 

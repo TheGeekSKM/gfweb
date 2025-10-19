@@ -96,7 +96,6 @@ export function LevelUpMenu(k: KAPLAYCtx) : void
             {
                 k.tween(addAnExperienceButton.scale, k.vec2(1), 0.1, (s) => { addAnExperienceButton.scale = s  });
                 k.wait(0.1, () => {
-                    k.debug.log("Add Experience Clicked");
                     k.go("newCharExpUpgrade");
                 });
             }
