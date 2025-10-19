@@ -1,15 +1,19 @@
 import type { KAPLAYCtx } from "kaplay";
-import * as Data from "../../data/globalData.ts";
 import * as Types from "../../data/templates.ts";
 import { AddExperience, AddItemObj } from "../../ui.ts";
+import { AppStore } from "../../store.ts";
 
 export function CharSheetScene(k: KAPLAYCtx) : void 
 {
     
-
     k.scene("charSheet", () => {
+        AppStore.SetState((prevState) => ({
+            ...prevState,
+            currentScene: "charSheet",
+            previousScene: prevState.currentScene,
+        }), "CharSheetScene");
 
-        console.log(`CharData in CharSheetScene: ${Data.GetPlayerData()}`);
+        
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, { radius: 10, fill: false }),
             k.anchor("center"),
@@ -18,14 +22,14 @@ export function CharSheetScene(k: KAPLAYCtx) : void
         ]);
 
         const titleText = fullBorder.add([
-            k.text(`${Data.GetPlayerData().charName}`, { size: 20, font: "monogram", width: k.width() - 40, align: "center" }),
+            k.text(`${AppStore.GetState().player.charName}`, { size: 20, font: "monogram", width: k.width() - 40, align: "center" }),
             k.pos(0, -k.height() / 2 + 50),
             k.anchor("center"),
             k.color(k.rgb(150, 200, 255))
         ]);
 
         const formattedTitle = k.formatText({
-            text: `${Data.GetPlayerData().charName}`,
+            text: `${AppStore.GetState().player.charName}`,
             size: 20,
             width: k.width() - 40,
             align: "center"
@@ -34,7 +38,7 @@ export function CharSheetScene(k: KAPLAYCtx) : void
         titleText.pos.y = (-k.height() / 2) + formattedTitle.height / 2 + 20;
 
         const levelText = fullBorder.add([
-            k.text(`Level: ${Data.GetPlayerData().level} + CharID: ${Data.GetPlayerData().characterID}`, { size: 18, font: "monogram", width: k.width() - 40, align: "center" }),
+            k.text(`Level: ${AppStore.GetState().player.level} + CharID: ${AppStore.GetState().player.characterID}`, { size: 18, font: "monogram", width: k.width() - 40, align: "center" }),
             k.pos(0, -k.height() / 2 + 50),
             k.anchor("center"),
             k.color(k.rgb(150, 150, 150))
@@ -43,7 +47,7 @@ export function CharSheetScene(k: KAPLAYCtx) : void
         levelText.pos.y = titleText.pos.y + formattedTitle.height / 2 + 10 + levelText.height / 2;
 
         const hitPointText = fullBorder.add([
-            k.text(`HP: ${Data.GetPlayerData().hitPoints} / ${Data.GetPlayerData().maxHitPoints}`, { size: 24, font: "monogram", width: k.width() - 40, align: "left" }),
+            k.text(`HP: ${AppStore.GetState().player.hitPoints} / ${AppStore.GetState().player.maxHitPoints}`, { size: 24, font: "monogram", width: k.width() - 40, align: "left" }),
             k.pos(0, -k.height() / 2 + formattedTitle.height + levelText.height + 70),
             k.anchor("center"),
             k.color(k.rgb(150, 150, 150))
@@ -115,13 +119,15 @@ export function CharSheetScene(k: KAPLAYCtx) : void
             k.color(k.rgb(5, 5, 5)),
         ]);
 
-        
-
-
         function OnItemClick(item : Types.Item)
         {
             if (mouseInExperience) return;
             k.debug.log(`Clicked on item: ${item.itemName}`);
+            AppStore.SetState(prevState => ({
+                ...prevState,
+                currentItemInUse : item
+            }), "CharSheet_OnItemClick");
+            k.go("itemUsageMenu");
         }
 
         function OnChangeHPClick()
@@ -134,136 +140,47 @@ export function CharSheetScene(k: KAPLAYCtx) : void
             k.debug.log("Level Up Clicked");
         }
 
-        function RenderData()
+        hitPointText.text = `HP: ${AppStore.GetState().player.hitPoints} / ${AppStore.GetState().player.maxHitPoints}`;
+        if (AppStore.GetState().player.hitPoints <= AppStore.GetState().player.maxHitPoints * 0.3)
         {
-            hitPointText.text = `HP: ${Data.GetPlayerData().hitPoints} / ${Data.GetPlayerData().maxHitPoints}`;
-            if (Data.GetPlayerData().hitPoints <= Data.GetPlayerData().maxHitPoints * 0.3)
-            {
-                hitPointText.color = k.rgb(255, 50, 50);
-            }
-            else 
-            {
-                hitPointText.color = k.rgb(150, 150, 150);
-            }
-
-            levelText.text = `Level: ${Data.GetPlayerData().level} | CharID: ${Data.GetPlayerData().characterID}`;
-
-            let experienceCurrentYPos = -((experienceScrollContainer.height / 2) - 10);
-            Data.GetPlayerData().experienceList.forEach((exp : Types.Experience) => {
-                const expObj = AddExperience(k, exp, experienceScrollContainer, () => {});
-                expObj.pos.y = experienceCurrentYPos + (expObj.height / 2);
-                experienceCurrentYPos += expObj.height + 10;
-                expObj.width = experienceScrollContainer.width - 50;
-                expObj.pos.x = -15;
-            });
-
-            let inventoryCurrentYPos = -((inventoryScrollContainer.height / 2) - 10);
-            let inventoryList : Types.Item[] = Types.RecordToItemList(Data.GetPlayerData().inventory);
-            inventoryList.forEach((item : Types.Item) => {
-                const itemObj = AddItemObj(k, item, inventoryScrollContainer, OnItemClick);
-                itemObj.pos.y = inventoryCurrentYPos + (itemObj.height / 2);
-                inventoryCurrentYPos += itemObj.height + 10;
-                itemObj.width = inventoryScrollContainer.width - 50;
-                itemObj.pos.x = -15;
-            });
+            hitPointText.color = k.rgb(255, 50, 50);
+        }
+        else 
+        {
+            hitPointText.color = k.rgb(150, 150, 150);
         }
 
-        RenderData();
+        levelText.text = `Level: ${AppStore.GetState().player.level} | CharID: ${AppStore.GetState().player.characterID}`;
 
-        let mouseInInventory : boolean = false;
+        let experienceCurrentYPos = -((experienceScrollContainer.height / 2) - 10);
+        AppStore.GetState().player.experienceList.forEach((exp : Types.Experience) => {
+            const expObj = AddExperience(k, exp, experienceScrollContainer, () => {});
+            expObj.pos.y = experienceCurrentYPos + (expObj.height / 2);
+            experienceCurrentYPos += expObj.height + 10;
+            expObj.width = experienceScrollContainer.width - 50;
+            expObj.pos.x = -15;
+        });
+
+        let inventoryCurrentYPos = -((inventoryScrollContainer.height / 2) - 10);
+        let inventoryList : Types.Item[] = Types.RecordToItemList(AppStore.GetState().player.inventory);
+        inventoryList.forEach((item : Types.Item) => {
+            const itemObj = AddItemObj(k, item, inventoryScrollContainer, OnItemClick);
+            itemObj.pos.y = inventoryCurrentYPos + (itemObj.height / 2);
+            inventoryCurrentYPos += itemObj.height + 10;
+            itemObj.width = inventoryScrollContainer.width - 50;
+            itemObj.pos.x = -15;
+        });
+
+
         let mouseInExperience : boolean = false;
 
         k.onUpdate(() => {
 
-            mouseInInventory = inventoryScrollContainer.hasPoint(k.mousePos());
             mouseInExperience = experienceScrollContainer.hasPoint(k.mousePos());
 
         })
 
-        let isChangeHealthButtonHovered = false;
-        let isLevelUpButtonHovered = false;
-
-
-        let isDraggingExp : boolean = false;
-        let isDraggingInv : boolean = false;
-        let lastMouseYExp : number = 0;
-        let lastMouseYInv : number = 0;
-        k.onMousePress(() => {
-
-
-            if (changeHealthButton.hasPoint(k.mousePos()))
-            {
-                isChangeHealthButtonHovered = true;
-                k.tween(changeHealthButton.scale, k.vec2(1.1), 0.1, (s) => { changeHealthButton.scale = s  });
-            }
-
-            if (experienceScrollContainer.hasPoint(k.mousePos()))
-            {
-                isDraggingExp = true;
-                lastMouseYExp = k.mousePos().y;
-            }
-
-            else if (inventoryScrollContainer.hasPoint(k.mousePos()))
-            {
-                isDraggingInv = true;
-                lastMouseYInv = k.mousePos().y;
-            }
-
-            else if (levelUpButton.hasPoint(k.mousePos()))
-            {
-                isLevelUpButtonHovered = true;
-                k.tween(levelUpButton.scale, k.vec2(1.1), 0.1, (s) => { levelUpButton.scale = s  });
-            }
-        });
-
         
-        k.onMouseMove(() => {
-            if (isDraggingExp)
-            {
-                const deltaY = k.mousePos().y - lastMouseYExp;
-                experienceScrollContainer.children.forEach((child) => {
-                    if (child !== experienceScrollBorder)
-                    {
-                        child.pos.y += deltaY;
-                    }
-                });
-
-                lastMouseYExp = k.mousePos().y;
-            }
-
-            if (isDraggingInv)
-            {
-                const deltaY = k.mousePos().y - lastMouseYInv;
-                inventoryScrollContainer.children.forEach((child) => {
-                    if (child !== inventoryScrollBorder)
-                    {
-                        child.pos.y += deltaY;
-                    }
-                });
-
-                lastMouseYInv = k.mousePos().y;
-            }
-        });
-
-        k.onMouseRelease(() => {
-
-            isDraggingExp = false;
-            isDraggingInv = false;
-            
-            if (isChangeHealthButtonHovered)
-            {
-                k.tween(changeHealthButton.scale, k.vec2(1), 0.1, (s) => { changeHealthButton.scale = s  });
-                isChangeHealthButtonHovered = false;
-                OnChangeHPClick();
-            }
-
-            if (isLevelUpButtonHovered)
-            {
-                k.tween(levelUpButton.scale, k.vec2(1), 0.1, (s) => { levelUpButton.scale = s  });
-                isLevelUpButtonHovered = false;
-                OnLevelUpClick();
-            }
-        });
 
 
     });

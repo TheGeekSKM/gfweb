@@ -1,9 +1,16 @@
 import type { KAPLAYCtx } from "kaplay";
 import * as Data from "../../../data/globalData.ts";
+import { AppStore } from "../../../store.ts";
 
 export function CreateNewCharName(k: KAPLAYCtx) : void
 {
+    
     k.scene("newPlayerName", () => {
+        AppStore.SetState((prevState) => ({
+            ...prevState,
+            currentScene: "newPlayerName",
+            previousScene: prevState.currentScene,
+        }), "CreateNewCharNameScene");
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, { radius: 10, fill: false }),
             k.anchor("center"),
@@ -79,7 +86,7 @@ export function CreateNewCharName(k: KAPLAYCtx) : void
             {
                 k.tween(proceedButton.scale, k.vec2(1), 0.1, (s) => { proceedButton.scale = s  });
                 k.wait(0.1, () => {
-                    Data.GetPlayerData().charName = nameInputField.value || "Unnamed Hero";
+                    AppStore.GetState().player.charName = nameInputField.value || "Unnamed Hero";
                     k.go("charHPSelect");
                 });
             }

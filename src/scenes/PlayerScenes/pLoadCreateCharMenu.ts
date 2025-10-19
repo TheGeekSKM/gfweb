@@ -1,10 +1,19 @@
 import type { KAPLAYCtx } from "kaplay";
-import * as Firebase from "../../firebase";
 import * as Data from "../../data/globalData.ts";
+import * as Firebase from "../../firebase.ts";
+import { AppStore } from "../../store.ts";
 
 export function LoadCreateCharMenu(k: KAPLAYCtx) 
 {
+   
+
     k.scene("pLoadCreateChar", () => {
+         AppStore.SetState((prevState) => ({
+            ...prevState,
+            currentScene: "pLoadCreateChar",
+            previousScene: prevState.currentScene,
+        }), "LoadCreateCharMenuScene");
+
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, {radius: 10, fill: false}),
             k.anchor("center"),
@@ -137,7 +146,16 @@ export function LoadCreateCharMenu(k: KAPLAYCtx)
 
                 k.tween(loadCharButtonBorder.scale, k.vec2(1), 0.1, (s) => { loadCharButtonBorder.scale = s  });
                 k.wait(0.1, () => {
-                    Data.LoadNewPlayerData(loadCharInputField.value.trim());
+                    
+                    Firebase.LoadCharacterData(loadCharInputField.value.trim(), (data) => {
+                        AppStore.SetState(prevState => ({
+                            ...prevState,
+                            player : data,
+                            playerLoaded : true,
+                        }), "LoadCreateCharMenu_OnCharacterDataLoaded");
+                        k.debug.log("Character data loaded into AppStore:", data);
+                    });
+
                     k.go("loadingCharData");
                 });
             }

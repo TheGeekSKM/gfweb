@@ -1,9 +1,17 @@
 import type { KAPLAYCtx } from "kaplay";
-import * as Data from "../../data/globalData.ts";
+import { AppStore } from "../../store.ts";
 
 export function LoadingCharacterData(k: KAPLAYCtx) : void
 {
+    
     k.scene("loadingCharData", () => {
+
+        AppStore.SetState((prevState) => ({
+            ...prevState,
+            currentScene: "loadingCharData",
+            previousScene: prevState.currentScene,
+        }), "LoadingCharacterDataScene");
+
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, {radius: 10, fill: false}),
             k.anchor("center"),
@@ -19,7 +27,7 @@ export function LoadingCharacterData(k: KAPLAYCtx) : void
         ]);
 
         k.onUpdate(() => {
-            if (Data.playerLoaded) 
+            if (AppStore.GetState().playerLoaded)
             {
                 k.go("charSheet");
             }

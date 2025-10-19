@@ -1,9 +1,15 @@
 import type { KAPLAYCtx } from "kaplay";
-import * as Data from "../../../data/globalData.ts";
+import { AppStore } from "../../../store.ts";
 
 export function CreateNewCharHPSelect(k: KAPLAYCtx) : void
 {
+    
     k.scene("charHPSelect", () => {
+        AppStore.SetState((prevState) => ({
+            ...prevState,
+            currentScene: "charHPSelect",
+            previousScene: prevState.currentScene,
+        }), "CreateNewCharHPSelectScene");
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, { radius: 10, fill: false }),
             k.anchor("center"),
@@ -75,8 +81,8 @@ export function CreateNewCharHPSelect(k: KAPLAYCtx) : void
             if (isProceedButtonHovered) {
                 k.tween(proceedButton.scale, k.vec2(1), 0.1, (s) => { proceedButton.scale = s });
                 k.wait(0.1, () => {
-                    Data.GetPlayerData().maxHitPoints = parseInt(hitPointsInputField.value) || 10;
-                    Data.GetPlayerData().hitPoints = Data.GetPlayerData().maxHitPoints;
+                    AppStore.GetState().player.maxHitPoints = parseInt(hitPointsInputField.value) || 10;
+                    AppStore.GetState().player.hitPoints = AppStore.GetState().player.maxHitPoints;
                     hitPointsInputField.style.display = "none";
                     k.go("newCharExp");
                 });

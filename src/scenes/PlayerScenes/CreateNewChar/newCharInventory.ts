@@ -1,12 +1,18 @@
 import type { KAPLAYCtx } from "kaplay";
 import * as Types from "../../../data/templates";
-import * as Data from "../../../data/globalData";
 import { AddItemObj } from "../../../ui";
 import * as Firebase from "../../../firebase"
+import { AppStore } from "../../../store";
 
 export function CreateNewCharInventory(k: KAPLAYCtx) : void
 {
+    
     k.scene("newCharInv", () => {
+        AppStore.SetState((prevState) => ({
+            ...prevState,
+            currentScene: "newCharInv",
+            previousScene: prevState.currentScene,
+        }), "CreateNewCharInventoryScene");
         const fullBorder = k.add([
             k.rect(k.width() - 20, k.height() - 20, {radius: 10, fill: false}),
             k.anchor("center"),
@@ -273,7 +279,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         function RenderItems() 
         {
             let currentYPos = -((itemListContainer.height / 2) - 20);
-            const itemList = Types.RecordToItemList(Data.GetPlayerData().inventory);
+            const itemList = Types.RecordToItemList(AppStore.GetState().player.inventory);
             for (const item of itemList)
             {
                 const itemObj = AddItemObj(k, item, itemListContainer, OnItemClick);
@@ -367,7 +373,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
                 k.wait(0.1, () => {
                     const newItem = CreateItemFromInputs(itemNameInputField.value, itemUsagePoolInputField.value, itemUsageCapInputField.value);
                     if (newItem) {
-                        Types.AddItemToInventory(Data.GetPlayerData(), newItem);
+                        Types.AddItemToInventory(AppStore.GetState().player, newItem);
                         itemNameInputField.value = "";
                         itemUsagePoolInputField.value = "";
                         itemUsageCapInputField.value = "";
@@ -408,7 +414,7 @@ export function CreateNewCharInventory(k: KAPLAYCtx) : void
         });
 
         k.onSceneLeave(() => {
-            Firebase.Publish("players/" + Data.GetPlayerData().characterID, Data.GetPlayerData());
+            Firebase.Publish("players/" + AppStore.GetState().player.characterID, AppStore.GetState().player);
 
             itemNameInputField.style.display = "none";
             itemUsagePoolInputField.style.display = "none";
